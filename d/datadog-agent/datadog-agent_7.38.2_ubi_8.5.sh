@@ -44,7 +44,7 @@ git checkout $PACKAGE_VERSION
 # Fetch and apply patch
 # wget https://raw.githubusercontent.com/ppc64le/build-scripts/master/d/datadog-agent/datadog-agent_7.38.2.patch
 wget https://raw.githubusercontent.com/vishakadesai/build-scripts/master/d/datadog-agent/datadog-agent_7.38.2.patch
-git apply --ignore-whitespace datadog-agent_7.38.2.patch
+git apply datadog-agent_7.38.2.patch
 
 # Build and install dependencies
 python3 -m pip install codecov -r requirements.txt
