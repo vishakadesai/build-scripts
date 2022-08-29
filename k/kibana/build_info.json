@@ -2,6 +2,7 @@
     "package_name" : "kibana",
     "github_url":"https://github.com/elastic/kibana.git",
     "package_dir": "k/kibana/Dockerfiles/",
+    "docker_cmd" :"docker build -t ${package_name}:$PACKAGE_VERSION ${dir}",
 
     "v7.6.0" : {
         "dir":"7.6.0_ubi_8",
