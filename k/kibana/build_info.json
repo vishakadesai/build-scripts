@@ -8,15 +8,11 @@
         "dir":"7.6.0_ubi_8",
         "build_script" : "kibana_v7.6.0_ubi_8.5.sh"
     },
-    "v7.7.*, v7.8.*" : {
+    "v7.7.0, v7.8.0" : {
         "dir":"7.6.0_ubi_8",
         "build_script" : "kibana_v7.6.0_ubi_8.5.sh"
     },
     "v8.1.0" : {
-        "dir":"8.1.0_ubi_8",
-        "build_script" : "kibana_v8.1.0_ubi_8.5.sh"
-    },
-    "v*.*.*" : {
         "dir":"8.1.0_ubi_8",
         "build_script" : "kibana_v8.1.0_ubi_8.5.sh"
     }
