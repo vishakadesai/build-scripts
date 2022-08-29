@@ -32,10 +32,10 @@ RUN git clone --single-branch --branch $PACKAGE_VERSION https://github.com/elast
 #     npm install -g yarn
 
 # Remove Chromedriver dependency
-RUN sed -i '/"chromedriver"/d' package.json && \
-    sed -i 's/git-common-dir/git-dir/' /root/kibana/src/dev/register_git_hook/register_git_hook.js && \
-    sed -i 's/#server.host: "localhost"/server.host: "0.0.0.0"/' /root/kibana/config/kibana.yml && \
-    sed -i 's@#elasticsearch.hosts: ["http://localhost:9200"]@elasticsearch.hosts: ["http://elasticsearch:9200"]@' /root/kibana/config/kibana.yml 
+# RUN sed -i '/"chromedriver"/d' package.json && \
+#     sed -i 's/git-common-dir/git-dir/' /root/kibana/src/dev/register_git_hook/register_git_hook.js && \
+#     sed -i 's/#server.host: "localhost"/server.host: "0.0.0.0"/' /root/kibana/config/kibana.yml && \
+#     sed -i 's@#elasticsearch.hosts: ["http://localhost:9200"]@elasticsearch.hosts: ["http://elasticsearch:9200"]@' /root/kibana/config/kibana.yml 
 
 # Bootstrap Kibana
 RUN groupadd kibana && useradd kibana -g kibana && \
