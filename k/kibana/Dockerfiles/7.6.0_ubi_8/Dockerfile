@@ -23,13 +23,13 @@ RUN curl -sL https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh
     source /root/.nvm/nvm.sh
 
 # Clone Kibana, Install required NodeJS version using NVM, Install yarn using npm
-RUN git clone --single-branch --branch $PACKAGE_VERSION https://github.com/elastic/kibana.git
+RUN git clone --single-branch --branch $PACKAGE_VERSION https://github.com/elastic/kibana.git && \
+    cd kibana 
 
-RUN cd kibana 
+ENV NVM_DIR="$HOME/.nvm"
 
-RUN nvm install && nvm use
-
-RUN npm install -g yarn
+RUN nvm install && nvm use && \
+    npm install -g yarn
 
 # Remove Chromedriver dependency
 RUN sed -i '/"chromedriver"/d' package.json && \
