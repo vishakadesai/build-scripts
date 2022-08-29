@@ -20,15 +20,19 @@ RUN yum install -y curl gcc-c++ make git python27
 # Install NVM
 RUN curl -sL https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh -o install_nvm.sh && \
     sh install_nvm.sh && \
-    source /root/.nvm/nvm.sh \
+    source /root/.nvm/nvm.sh && \
+    export NVM_DIR="$HOME/.nvm" && \
+    # Clone Kibana, Install required NodeJS version using NVM, Install yarn using npm
+    git clone --single-branch --branch $PACKAGE_VERSION https://github.com/elastic/kibana.git  && \
+    cd kibana && \
     nvm install && nvm use && \
     npm install -g yarn
 
 # Clone Kibana, Install required NodeJS version using NVM, Install yarn using npm
-RUN git clone --single-branch --branch $PACKAGE_VERSION https://github.com/elastic/kibana.git  && \
-    cd kibana && \
-    nvm install && nvm use && \
-    npm install -g yarn
+# RUN git clone --single-branch --branch $PACKAGE_VERSION https://github.com/elastic/kibana.git  && \
+#     cd kibana && \
+#     nvm install && nvm use && \
+#     npm install -g yarn
 
 # Remove Chromedriver dependency
 RUN sed -i '/"chromedriver"/d' package.json && \
