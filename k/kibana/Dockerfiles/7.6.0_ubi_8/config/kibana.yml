@@ -3,7 +3,9 @@
 #
 
 # Default Kibana configuration for docker target
+server.name: kibana
 server.host: "0.0.0.0"
-server.shutdownTimeout: "5s"
 elasticsearch.hosts: [ "http://elasticsearch:9200" ]
-monitoring.ui.container.elasticsearch.enabled: true
+xpack.monitoring.ui.container.elasticsearch.enabled: true
+xpack.reporting.enabled: false
+xpack.security.enabled: false
