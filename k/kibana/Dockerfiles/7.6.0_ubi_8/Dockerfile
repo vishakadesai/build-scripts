@@ -17,25 +17,22 @@ ARG PACKAGE_VERSION="v7.6.0"
 
 RUN yum install -y curl gcc-c++ make git python27
 
+# Clone Kibana, Install required NodeJS version using NVM, Install yarn using npm
+RUN git clone --single-branch --branch $PACKAGE_VERSION https://github.com/elastic/kibana.git  
+
 # Install NVM
 RUN curl -sL https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh -o install_nvm.sh && \
     sh install_nvm.sh && \
-    source /root/.nvm/nvm.sh
-
-# Clone Kibana, Install required NodeJS version using NVM, Install yarn using npm
-RUN git clone --single-branch --branch $PACKAGE_VERSION https://github.com/elastic/kibana.git && \
-    cd kibana 
-
-# ENV NVM_DIR="$HOME/.nvm"
-
-# RUN nvm install && nvm use && \
-#     npm install -g yarn
+    source /root/.nvm/nvm.sh \
+    cd kibana && \
+    nvm install && nvm use && \
+    npm install -g yarn
 
 # Remove Chromedriver dependency
-# RUN sed -i '/"chromedriver"/d' package.json && \
-#     sed -i 's/git-common-dir/git-dir/' /root/kibana/src/dev/register_git_hook/register_git_hook.js && \
-#     sed -i 's/#server.host: "localhost"/server.host: "0.0.0.0"/' /root/kibana/config/kibana.yml && \
-#     sed -i 's@#elasticsearch.hosts: ["http://localhost:9200"]@elasticsearch.hosts: ["http://elasticsearch:9200"]@' /root/kibana/config/kibana.yml 
+RUN sed -i '/"chromedriver"/d' package.json && \
+    sed -i 's/git-common-dir/git-dir/' /root/kibana/src/dev/register_git_hook/register_git_hook.js && \
+    sed -i 's/#server.host: "localhost"/server.host: "0.0.0.0"/' /root/kibana/config/kibana.yml && \
+    sed -i 's@#elasticsearch.hosts: ["http://localhost:9200"]@elasticsearch.hosts: ["http://elasticsearch:9200"]@' /root/kibana/config/kibana.yml 
 
 # Bootstrap Kibana
 RUN groupadd kibana && useradd kibana -g kibana && \
