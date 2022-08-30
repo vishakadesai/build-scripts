@@ -74,4 +74,5 @@ yarn kbn bootstrap 2>/dev/null || true
 cd /kibana/node_modules/lmdb-store/ && npm i 
 
 # Build Kibana
-cd /kibana && npm install -g yarn && yarn kbn bootstrap && yarn build
+cd /kibana 
+npm install -g yarn && yarn kbn bootstrap && yarn build
