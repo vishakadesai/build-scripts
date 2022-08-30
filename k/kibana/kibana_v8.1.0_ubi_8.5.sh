@@ -20,10 +20,13 @@
 
 yum install -y gcc gcc-c++ git golang java-11-openjdk-devel make python38 wget unzip zip
 
+WORKDIR=/root
+
 # Create Symlink for python3, used by bazel
 ln -s /usr/bin/python3 /usr/bin/python
 
 # Install Node
+cd $WORKDIR 
 wget https://nodejs.org/dist/v16.13.2/node-v16.13.2-linux-ppc64le.tar.gz 
 tar -xf node-v16.13.2-linux-ppc64le.tar.gz 
 cp -r node-v16.13.2-linux-ppc64le/{bin,include,lib,share} /usr/ 
@@ -33,7 +36,8 @@ npm install -g yarn node-gyp @bazel/bazelisk@1.10.1
 sed -i "/'x64': 'amd64',/a\    'ppc64': 'ppc64'," /usr/lib/node_modules/@bazel/bazelisk/bazelisk.js
 
 # Install Bazel
-cd .. && mkdir bazel/ && cd bazel 
+cd $WORKDIR 
+mkdir bazel/ && cd bazel 
 wget https://github.com/bazelbuild/bazel/releases/download/4.2.1/bazel-4.2.1-dist.zip 
 unzip bazel-4.2.1-dist.zip 
 bash compile.sh
@@ -41,7 +45,7 @@ bash compile.sh
 export USE_BAZEL_VERSION=/bazel/output/bazel
 
 # Install Bazelisk
-cd ..
+cd $WORKDIR 
 wget https://github.com/bazelbuild/bazelisk/archive/refs/tags/v1.10.1.zip 
 unzip v1.10.1.zip
 cd /bazelisk-1.10.1 
@@ -51,7 +55,7 @@ go build && ./bazelisk build --config=release //:bazelisk-linux-ppc64
 cp -r bazel-out/ppc-opt-*/bin/bazelisk-linux_ppc64 /usr/lib/node_modules/@bazel/bazelisk/
 
 # Clone Kibana
-cd ..
+cd $WORKDIR 
 git clone -b v8.1.0 https://github.com/elastic/kibana.git
 cd /kibana 
 wget https://raw.githubusercontent.com/ppc64le/build-scripts/master/k/kibana/Dockerfiles/8.1.0_ubi_8/kibana_v8.1.0_ppc64le.patch
@@ -59,19 +63,19 @@ git apply --ignore-whitespace ./kibana_v8.1.0_ppc64le.patch
 yarn install 2>/dev/null || true # this is expected to fail, we just need it to rebuild lmdb-store before bootstrapping
 
 # Install re2
-cd ..
+cd $WORKDIR 
 git clone -b 1.16.0 https://github.com/uhop/node-re2.git && cd node-re2 
 git submodule update --init --recursive 
 npm install 
 mkdir -p /kibana/.native_modules/re2/ 
 gzip -c build/Release/re2.node > /kibana/.native_modules/re2/linux-ppc64-93.gz
 
-cd /kibana 
+cd $WORKDIR/kibana 
 sed -i "/case 'x64': return '64-bit';/a case 'ppc64': return '64-bit';" node_modules/node-sass/lib/extensions.js  
 npm rebuild node-sass 
-yarn kbn bootstrap 2>/dev/null || true
+npm install -g yarn && yarn kbn bootstrap 2>/dev/null || true
 
-cd /kibana/node_modules/lmdb-store/ && npm i 
+cd $WORKDIR/kibana/node_modules/lmdb-store/ && npm i 
 
 # Build Kibana
-cd /kibana  && yarn kbn bootstrap && yarn build
+cd $WORKDIR/kibana && npm install -g yarn && yarn kbn bootstrap && yarn build
