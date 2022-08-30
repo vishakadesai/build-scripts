@@ -13,13 +13,16 @@
 ################################################################################
 FROM registry.access.redhat.com/ubi8/ubi:latest AS builder
 
+ENV WORKDIR=/root
+
 RUN yum install -y gcc gcc-c++ git golang java-11-openjdk-devel make python38 wget unzip zip
 
 # Create Symlink for python3, used by bazel
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Install and load NodeJS
-RUN wget https://nodejs.org/dist/v16.13.2/node-v16.13.2-linux-ppc64le.tar.gz && \
+RUN cd $WORKDIR && \ 
+    wget https://nodejs.org/dist/v16.13.2/node-v16.13.2-linux-ppc64le.tar.gz && \
     tar -xf node-v16.13.2-linux-ppc64le.tar.gz && \
     cp -r node-v16.13.2-linux-ppc64le/{bin,include,lib,share} /usr/ && \
     rm -rf node-v16.13.2-linux-ppc64le* && \
@@ -28,7 +31,8 @@ RUN wget https://nodejs.org/dist/v16.13.2/node-v16.13.2-linux-ppc64le.tar.gz && 
     sed -i "/'x64': 'amd64',/a\    'ppc64': 'ppc64'," /usr/lib/node_modules/@bazel/bazelisk/bazelisk.js
 
 # Build Bazel from source
-RUN mkdir bazel/ && cd bazel && \
+RUN cd $WORKDIR && \
+    mkdir bazel/ && cd bazel && \
     wget https://github.com/bazelbuild/bazel/releases/download/4.2.1/bazel-4.2.1-dist.zip && \
     unzip bazel-4.2.1-dist.zip && \
     bash compile.sh
@@ -36,7 +40,8 @@ RUN mkdir bazel/ && cd bazel && \
 ENV USE_BAZEL_VERSION /bazel/output/bazel
 
 # Build Bazelisk from source
-RUN wget https://github.com/bazelbuild/bazelisk/archive/refs/tags/v1.10.1.zip && \
+RUN cd $WORKDIR && \
+    wget https://github.com/bazelbuild/bazelisk/archive/refs/tags/v1.10.1.zip && \
     unzip v1.10.1.zip && \
     cd /bazelisk-1.10.1 && \
     wget https://raw.githubusercontent.com/ppc64le/build-scripts/master/k/kibana/Dockerfiles/8.1.0_ubi_8/bazelisk_v1.10.1_ppc64le.patch && \
@@ -45,7 +50,8 @@ RUN wget https://github.com/bazelbuild/bazelisk/archive/refs/tags/v1.10.1.zip &&
     cp -r bazel-out/ppc-opt-*/bin/bazelisk-linux_ppc64 /usr/lib/node_modules/@bazel/bazelisk/
 
 # Clone Kibana and Install required NodeJS version using NVM
-RUN git clone -b v8.1.0 https://github.com/elastic/kibana.git && \
+RUN cd $WORKDIR && \
+    git clone -b v8.1.0 https://github.com/elastic/kibana.git && \
     cd /kibana && \
     wget https://raw.githubusercontent.com/ppc64le/build-scripts/master/k/kibana/Dockerfiles/8.1.0_ubi_8/kibana_v8.1.0_ppc64le.patch && \
     git apply --ignore-whitespace ./kibana_v8.1.0_ppc64le.patch && \
@@ -53,7 +59,8 @@ RUN git clone -b v8.1.0 https://github.com/elastic/kibana.git && \
     yarn install 2>/dev/null || true
 
 # Build re2
-RUN git clone -b 1.16.0 https://github.com/uhop/node-re2.git && cd node-re2 && \
+RUN cd $WORKDIR && \
+    git clone -b 1.16.0 https://github.com/uhop/node-re2.git && cd node-re2 && \
     git submodule update --init --recursive && \
     npm install && \
     mkdir -p /kibana/.native_modules/re2/ && \
@@ -61,16 +68,18 @@ RUN git clone -b 1.16.0 https://github.com/uhop/node-re2.git && cd node-re2 && \
     
 # Bootstrap Kibana
 
-RUN cd /kibana && \
+RUN cd $WORKDIR && \
+    cd /kibana && \
     sed -i "/case 'x64': return '64-bit';/a case 'ppc64': return '64-bit';" node_modules/node-sass/lib/extensions.js  && \
     npm rebuild node-sass && \
     yarn kbn bootstrap 2>/dev/null || true
 
-RUN cd /kibana/node_modules/lmdb-store/ && npm i && \
+RUN cd $WORKDIR && \
+    cd /kibana/node_modules/lmdb-store/ && npm i && \
     cd /kibana  && yarn kbn bootstrap && yarn build
 
 # Installing Kibana
-RUN mkdir /usr/share/kibana
+RUN cd $WORKDIR && mkdir /usr/share/kibana
 
 WORKDIR /usr/share/kibana
 
